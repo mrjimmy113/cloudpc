@@ -20,6 +20,6 @@ app.get('/', function(req, res){
 app.post("/login",function(req,res){
   dbAccount.login(req.body.username, req.body.password)
   .then(result => res.json(result))
-  .catch(err => console.log('Error: ' + err));
+  .catch(err => res.json('Error: ' + err));
   
 });
