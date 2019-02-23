@@ -1,0 +1,19 @@
+{
+  "name": "cloud",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/datastore": "^3.0.1",
+    "@google-cloud/storage": "^2.4.2",
+    "express": "^4.16.4",
+    "mysql": "^2.16.0",
+    "path": "^0.12.7",
+    "pg": "^7.8.0"
+  }
+}
