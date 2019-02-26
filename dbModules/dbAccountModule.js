@@ -72,7 +72,10 @@ let login = (username, password) => {
             if(err) {
                 return reject(new Error(err + ''));
             }
-            resolve(res.rows[0].isAdmin);
+            if(res.rowCount > 0) {
+                role = res.rows[0].isAdmin;
+            }
+            resolve(role);
             client.end();
         });
     });

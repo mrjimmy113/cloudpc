@@ -1,12 +1,20 @@
 var express = require('express');
 var app = express();
 var path = require('path');
-
+var cors = require('cors');
 const dbAccount = require('./dbModules/dbAccountModule');
 
+var allowCrossDomain = function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+  next();
+}
 app.listen(process.env.PORT ||3000);
 app.use(express.json())
 app.use(express.static('static'));
+app.use(cors());
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname+'/html/index.html'));
  });
@@ -18,8 +26,10 @@ app.get('/', function(req, res){
 ];
 
 app.post("/login",function(req,res){
+  console.log("Call API");
   dbAccount.login(req.body.username, req.body.password)
   .then(result => res.json(result))
   .catch(err => res.json('Error: ' + err));
   
 });
+
