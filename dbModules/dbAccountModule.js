@@ -47,23 +47,9 @@ exports.delete = function (id) {
 };
 //#endregion
 //#region LOGIN
-// exports.login = async function (username, password) {
-//     var query = `SELECT "isAdmin" FROM public.account
-//     WHERE username = '${username}' AND password = '${password}'`;
-//     var role = false;
-//     client.connect();
-//     await client.query(query, (err, res) => {
-//         role = res.rows[0].isAdmin;
-//         console.log(role + "1");
-//         client.end();
-//     });
-//     console.log(role + "2");
-//     return role;
-
-// }
 let login = (username, password) => {
     return new Promise((resolve, reject) => {
-        let query = `SELECT "isAdmin" FROM public.account
+        let query = `SELECT * FROM public.account
             WHERE username = '${username}' AND password = '${password}'`;
         var role = 'N';
         let client = pgCon.getPgClient();
@@ -73,7 +59,7 @@ let login = (username, password) => {
                 return reject(new Error(err + ''));
             }
             if(res.rowCount > 0) {
-                role = res.rows[0].isAdmin;
+                role = res.rows[0];
             }
             resolve(role);
             client.end();

@@ -1,7 +1,6 @@
 const pgCon = require('./pgconnection');
 const pool = pgCon.getPg();
 
-
 //#region Type
 //INSERT
 exports.insert = function(type) {
@@ -33,5 +32,21 @@ exports.delete = function(id) {
             pool.end()
           })
     };
+//GET ALL
+let getAll = () => {
+    return new Promise((resolve,reject) => {
+        let client = pgCon.getPgClient();
+        let query = `SELECT * FROM public.type`;
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ''));
+            resolve(res.rows);
+            client.end;
+        })
+    })
+}
+exports.getAll = getAll;
+
 //#endregion
+
 

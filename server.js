@@ -2,28 +2,21 @@ var express = require('express');
 var app = express();
 var path = require('path');
 var cors = require('cors');
+const fileUpload = require('express-fileupload');
 const dbAccount = require('./dbModules/dbAccountModule');
-
-var allowCrossDomain = function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-
-  next();
-}
+const dbGear = require('./dbModules/dbGearModule');
+const typeRoute = require('./routerModules/typeRouter');
+const gearRoute = require('./routerModules/gearRouter');
 app.listen(process.env.PORT ||3000);
 app.use(express.json())
 app.use(express.static('static'));
 app.use(cors());
+app.use(fileUpload());
+app.use('/type',typeRoute);
+app.use('/gear',gearRoute);
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname+'/html/index.html'));
  });
- var movies = [
-  {id: 101, name: "Fight Club", year: 1999, rating: 8.1},
-  {id: 102, name: "Inception", year: 2010, rating: 8.7},
-  {id: 103, name: "The Dark Knight", year: 2008, rating: 9},
-  {id: 104, name: "12 Angry Men", year: 1957, rating: 8.9}
-];
 
 app.post("/login",function(req,res){
   console.log("Call API");
@@ -32,4 +25,5 @@ app.post("/login",function(req,res){
   .catch(err => res.json('Error: ' + err));
   
 });
+
 

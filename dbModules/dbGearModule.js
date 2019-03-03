@@ -1,23 +1,30 @@
 const pgCon = require('./pgconnection');
-const pool = pgCon.getPg();
+
 
 
 //#region Type
 //INSERT
-exports.insert = function(gear) {
-    var query = `INSERT INTO public.gear(
-        name, description, "avatarURL", "imageBucket", price, "typeId", "createdDate", "modifyDate")
-        VALUES ('${gear.name}', '${gear.description}', '${gear.avatarURL}', '${gear.imageBucket}',
-         ${gear.price}, ${gear.typeId}, '${gear.createdDate}', '${gear.modifyDate}')`;
-    pool.query(query, (err, res) => {
-        console.log(err, res)
-        pool.end()
-      })
-};
-
+let insert = (gear) => {
+    return new Promise((resolve, reject) => {
+        var query = `INSERT INTO public.gear(
+            name, description, "avatarURL", price, "typeId")
+            VALUES ('${gear.name}', '${gear.description}', '${gear.avatarURL}',
+             ${gear.price}, ${gear.typeId})`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query,(err,res) => {
+            if(err) {
+                return reject(new Error(err + ''));
+            }
+            resolve();
+            client.end();
+        });
+    });
+}
+exports.insert = insert;
 
 //UPDATE
-exports.update = function(gear) {
+exports.update = function (gear) {
     var query = `UPDATE public.gear
         SET  name='${gear.name}', 
         description='${gear.description}', 
@@ -28,19 +35,33 @@ exports.update = function(gear) {
         "createdDate"='${gear.createdDate}', 
         "modifyDate"='${gear.modifyDate}'
 	    WHERE id=${gear.id}`;
-        pool.query(query, (err, res) => {
-            console.log(err, res)
-            pool.end()
-          })
-    };
+    pool.query(query, (err, res) => {
+        console.log(err, res)
+        pool.end()
+    })
+};
 //DELETE
-exports.delete = function(id) {
+exports.delete = function (id) {
     var query = `DELETE FROM public.gear
 	    WHERE id =${id}`;
-        pool.query(query, (err, res) => {
-            console.log(err, res)
-            pool.end()
-          })
-    };
+    pool.query(query, (err, res) => {
+        console.log(err, res)
+        pool.end()
+    })
+};
+//GET ALL
+let getAll = () => {
+    return new Promise((resolve,reject) => {
+        let client = pgCon.getPgClient();
+        let query = `SELECT * FROM public.gear`;
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ""));
+            resolve(res.rows);
+            client.end();
+        });
+    })
+}
+exports.getAll = getAll;
 //#endregion
 
