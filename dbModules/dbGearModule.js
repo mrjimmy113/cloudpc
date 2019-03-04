@@ -24,31 +24,40 @@ let insert = (gear) => {
 exports.insert = insert;
 
 //UPDATE
-exports.update = function (gear) {
-    var query = `UPDATE public.gear
+let updateGear = (gear) => {
+    return new Promise((resolve, reject) => {
+        var query = `UPDATE public.gear
         SET  name='${gear.name}', 
         description='${gear.description}', 
         "avatarURL"='${gear.avatarURL}', 
-        "imageBucket"='${gear.imageBucket}', 
         price=${gear.price}, 
-        "typeId"=${gear.typeId}, 
-        "createdDate"='${gear.createdDate}', 
-        "modifyDate"='${gear.modifyDate}'
-	    WHERE id=${gear.id}`;
-    pool.query(query, (err, res) => {
-        console.log(err, res)
-        pool.end()
-    })
+        "typeId"=${gear.typeId}
+        WHERE id=${gear.id}`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ""));
+            resolve();
+            client.end();
+        });
+    });
 };
+exports.update = updateGear;
 //DELETE
-exports.delete = function (id) {
-    var query = `DELETE FROM public.gear
-	    WHERE id =${id}`;
-    pool.query(query, (err, res) => {
-        console.log(err, res)
-        pool.end()
-    })
-};
+let deleteGear = (id) => {
+    return new Promise((resolve,reject) => {
+        var query = `DELETE FROM public.gear
+        WHERE id =${id}`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ""));
+            resolve();
+            client.end();
+        });
+    });
+}
+exports.delete = deleteGear;
 //GET ALL
 let getAll = () => {
     return new Promise((resolve,reject) => {

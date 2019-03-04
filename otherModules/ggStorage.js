@@ -29,5 +29,10 @@ let upload = (image) => {
 }
 exports.upload = upload;
 
+exports.deleteImage = (name) => {
+  let file = bucket.file(name);
+  file.delete(function(err, apiResponse) {});
+}
+
 
 
