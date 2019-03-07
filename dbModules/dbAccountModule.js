@@ -3,18 +3,23 @@ const pool = pgCon.getPg();
 
 //#region INSERT
 //INSERT
-exports.insert = function (account) {
-    var query = `INSERT INTO public.account(
-        username, password, "firstName", "lastName", address, "phoneNumber", "createdDate", "isAdmin")
-        VALUES ('${account.username}', '${account.password}', '${account.firstName}', 
-        '${account.lastName}', '${account.address}', '${account.phoneNumber}'
-        , '${account.createdDate}', ${account.isAdmin});`;
-    console.log(query);
-    pool.query(query, (err, res) => {
-        console.log(err, res)
-        pool.end()
+let insert = (account) => {
+    return new Promise((resolve, reject) => {
+        let query = `INSERT INTO public.account(
+            username, password, "firstName", "lastName", address, "phoneNumber", "isAdmin")
+            VALUES ('${account.username}', '${account.password}', '${account.firstName}', 
+            '${account.lastName}', '${account.address}', '${account.phoneNumber}'
+            ,  ${account.isAdmin});`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ""))
+            resolve();
+            client.end();
+        })
     })
-};
+}
+exports.insert = insert;
 //#endregion
 //#region UPDATE
 exports.update = function (account) {
@@ -36,15 +41,19 @@ exports.update = function (account) {
 };
 //#endregion
 //#region DELETE
-exports.delete = function (id) {
-    var query = `DELETE FROM public.account
-	WHERE id = ${id};`;
-    console.log(query);
-    pool.query(query, (err, res) => {
-        console.log(err, res);
-        pool.end();
-    });
-};
+let deleteOpe = (id) => {
+    return new Promise((resolve, reject) => {
+        let query = `DELETE FROM public.account
+    WHERE id = ${id};`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err)  reject(new Error(err + ""));
+            resolve();
+        })
+    })
+}
+exports.delete = deleteOpe;
 //#endregion
 //#region LOGIN
 let login = (username, password) => {
@@ -55,10 +64,10 @@ let login = (username, password) => {
         let client = pgCon.getPgClient();
         client.connect();
         client.query(query, (err, res) => {
-            if(err) {
+            if (err) {
                 return reject(new Error(err + ''));
             }
-            if(res.rowCount > 0) {
+            if (res.rowCount > 0) {
                 role = res.rows[0];
             }
             resolve(role);
@@ -68,4 +77,90 @@ let login = (username, password) => {
 };
 exports.login = login;
 //#endregion
-
+//#region CHECK USERNAME
+let checkUsername = (username) => {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT * FROM public.account
+            WHERE username = '${username}'`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err, res) => {
+            if (err) return reject(new Error(err + ''));
+            if (res.rowCount > 0) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+            client.end();
+        })
+    })
+}
+exports.checkUsername = checkUsername;
+//#endregion
+//#region Get ALL
+let getAll = () => {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT * FROM public.account`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ""));
+            resolve(res.rows);
+            client.end();
+        })
+    })
+}
+exports.getAll = getAll;
+//#endregion
+//#region Make Admin
+let makeAdmin = (id) => {
+    return new Promise((resolve, reject) => {
+        let query = `UPDATE public.account
+        SET  "isAdmin"= true
+        WHERE id= ${id};`
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ""));
+            resolve();
+            client.end();
+        })
+    })
+}
+exports.makeAdmin = makeAdmin;
+//#endregion
+//#region Change Infor
+let changeInfor = (account) => {
+    return new Promise((resolve, reject) => {
+        let query = `UPDATE public.account
+        SET "firstName"='${account.firstName}', "lastName"='${account.lastName}',
+         address='${account.address}', "phoneNumber"='${account.phoneNumber}'
+        WHERE id=${account.id}`
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ""));
+            resolve();
+            client.end();
+        })
+    })
+}
+exports.changeInfor = changeInfor;
+//#endregion
+//#region Change Password
+let changePassword = (account) => {
+    return new Promise ((resolve, reject) => {
+        let query = `UPDATE public.account
+        SET password='${account.password}'
+        WHERE id=${account.id}`
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ""));
+            resolve();
+            client.end();
+        })
+    })
+}
+exports.changePassword = changePassword;
+//#endregion
