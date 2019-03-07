@@ -164,3 +164,21 @@ let changePassword = (account) => {
 }
 exports.changePassword = changePassword;
 //#endregion
+//#region GET BY ID
+let getById = (id) => {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT * FROM public.account
+            WHERE id = ${id}`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err, res) => {
+            if (err) {
+                return reject(new Error(err + ''));
+            }
+            resolve(res.rows[0]);
+            client.end();
+        });
+    });
+};
+exports.getById = getById;
+//#endregion

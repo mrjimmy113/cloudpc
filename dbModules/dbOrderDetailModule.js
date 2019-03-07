@@ -4,17 +4,21 @@ const pool = pgCon.getPg();
 
 //#region Type
 //INSERT
-exports.insert = function(orderDetail) {
-    var query = `INSERT INTO public."orderDetail"(
-        "orderId", "gearId", quantity)
-        VALUES (${orderDetail.orderId}, ${orderDetail.gearId}, ${orderDetail.quantity})`;
-    pool.query(query, (err, res) => {
-        console.log(err, res)
-        pool.end()
-      })
-};
-
-
+let insert = (orderDetail) => {
+    return new Promise((resolve, reject) => {
+        let query = `INSERT INTO public."orderDetail"(
+            "orderId", "gearId", quantity)
+            VALUES (${orderDetail.orderId}, ${orderDetail.gearId}, ${orderDetail.quantity})`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ''));
+            resolve();
+            client.end();
+        })
+    })
+}
+exports.insert = insert;
 //UPDATE
 exports.update = function(orderDetail) {
     var query = `UPDATE public."orderDetail"

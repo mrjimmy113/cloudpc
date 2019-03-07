@@ -21,10 +21,19 @@ router.delete('/dash/:id', (req,res) => {
    .catch(() => res.json(500)); 
 })
 router.post('/change/password', (req,res) => {
-
+    dbAccount.changePassword(req.body).then(
+        () => dbAccount.getById(req.body.id).then(
+            result => res.json(result)
+        )
+    ).catch((err) => {
+        console.log(err);
+        res.json(500);
+    })
 })
 router.post('/change/infor', (req,res) => {
-    
+    dbAccount.changeInfor(req.body).then(() => dbAccount.getById(req.body.id).then((result) => res.json(result)))
+    .catch((err) => {console.log(err); res.json(500)})
+
 })
 
 module.exports = router;
