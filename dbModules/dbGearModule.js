@@ -72,5 +72,37 @@ let getAll = () => {
     })
 }
 exports.getAll = getAll;
+//GET PAGE
+let getPage = (search,page,perPage) => {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT *
+        FROM public."gear"
+        WHERE LOWER(name) LIKE LOWER('%${search}%')
+        LIMIT ${perPage} OFFSET (${page} - 1) * ${perPage}
+        `;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ''));
+            resolve(res.rows);
+            client.end();
+        })
+    })
+}
+exports.getPage = getPage
+//GET MAX PAGE
+let getMaxPage = (search) => {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT COUNT(*) FROM public."gear" WHERE LOWER(name) LIKE LOWER('%${search}%')`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ''));
+            resolve(res.rows[0].count);
+            client.end();
+        })
+    })
+}
+exports.getMaxPage = getMaxPage
 //#endregion
 

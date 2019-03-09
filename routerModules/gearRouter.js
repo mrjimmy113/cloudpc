@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const dbGear = require('../dbModules/dbGearModule');
 const ggStorage = require('../otherModules/ggStorage');
+const pageItem = 8;
 router.post("/create", (req, res) => {
     let date = new Date();
     let gear = JSON.parse(req.body.gearInfo);
@@ -44,8 +45,16 @@ router.post("/update", (req, res) => {
     }
     dbGear.update(gear).then(() => res.json(200))
     .catch((err) => {console.log(err);res.json(500)});
-    
 
+})
+router.get("/getPage/:search&:page", (req,res) => {
+    dbGear.getPage(req.params.search,req.params.page,pageItem)
+    .then(result => res.json(result))
+    .catch(() => res.json(500))
+}) 
+router.get("/getMaxPage/:search", (req,res) => {
+    dbGear.getMaxPage(req.params.search).then(result => {res.json(Math.ceil(result / pageItem))})
+    .catch(() => res.json(500))
 })
 
 
