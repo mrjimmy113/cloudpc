@@ -56,6 +56,16 @@ router.get("/getMaxPage/:search", (req,res) => {
     dbGear.getMaxPage(req.params.search).then(result => {res.json(Math.ceil(result / pageItem))})
     .catch(() => res.json(500))
 })
+router.get("/getPageType/:id&:page", (req,res) => {
+    dbGear.getPageType(req.params.id,req.params.page,pageItem)
+    .then(result => res.json(result))
+    .catch(() => res.json(500))
+})
+router.get("/getMaxPageType/:id",(req,res) => {
+    dbGear.getMaxPageType(req.params.id)
+    .then(result => res.json(Math.ceil(result/pageItem)))
+    .catch(() => res.json(500))
+})
 
 
 

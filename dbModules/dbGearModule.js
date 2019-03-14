@@ -16,7 +16,7 @@ let insert = (gear) => {
             if(err) {
                 return reject(new Error(err + ''));
             }
-            resolve();
+            else resolve();
             client.end();
         });
     });
@@ -37,7 +37,7 @@ let updateGear = (gear) => {
         client.connect();
         client.query(query, (err,res) => {
             if(err) reject(new Error(err + ""));
-            resolve();
+            else resolve();
             client.end();
         });
     });
@@ -52,7 +52,7 @@ let deleteGear = (id) => {
         client.connect();
         client.query(query, (err,res) => {
             if(err) reject(new Error(err + ""));
-            resolve();
+            else resolve();
             client.end();
         });
     });
@@ -66,7 +66,7 @@ let getAll = () => {
         client.connect();
         client.query(query, (err,res) => {
             if(err) reject(new Error(err + ""));
-            resolve(res.rows);
+            else resolve(res.rows);
             client.end();
         });
     })
@@ -84,7 +84,7 @@ let getPage = (search,page,perPage) => {
         client.connect();
         client.query(query, (err,res) => {
             if(err) reject(new Error(err + ''));
-            resolve(res.rows);
+            else resolve(res.rows);
             client.end();
         })
     })
@@ -98,11 +98,44 @@ let getMaxPage = (search) => {
         client.connect();
         client.query(query, (err,res) => {
             if(err) reject(new Error(err + ''));
-            resolve(res.rows[0].count);
+            else resolve(res.rows[0].count);
             client.end();
         })
     })
 }
 exports.getMaxPage = getMaxPage
+
+//GET MAX PAGE TYPE
+let getMaxPageType = (id) => {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT COUNT(*) FROM public."gear" WHERE "typeId" = ${id}`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ''));
+            else resolve(res.rows[0].count);
+            client.end();
+        })
+    })
+}
+exports.getMaxPageType  = getMaxPageType
+//GET PAGE TYPE
+let getPageType = (id,page,perPage) => {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT *
+        FROM public."gear"
+        WHERE "typeId" = ${id}
+        LIMIT ${perPage} OFFSET (${page} - 1) * ${perPage}
+        `;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ''));
+            else resolve(res.rows);
+            client.end();
+        })
+    })
+}
+exports.getPageType = getPageType
 //#endregion
 

@@ -14,7 +14,7 @@ let insert = (account) => {
         client.connect();
         client.query(query, (err, res) => {
             if (err) reject(new Error(err + ""))
-            resolve();
+            else resolve();
             client.end();
         })
     })
@@ -47,9 +47,9 @@ let deleteOpe = (id) => {
     WHERE id = ${id};`;
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query, (err,res) => {
-            if(err)  reject(new Error(err + ""));
-            resolve();
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ""));
+            else resolve();
         })
     })
 }
@@ -66,11 +66,13 @@ let login = (username, password) => {
         client.query(query, (err, res) => {
             if (err) {
                 return reject(new Error(err + ''));
+            } else {
+                if (res.rowCount > 0) {
+                    role = res.rows[0];
+                }
+                resolve(role);
             }
-            if (res.rowCount > 0) {
-                role = res.rows[0];
-            }
-            resolve(role);
+
             client.end();
         });
     });
@@ -105,7 +107,7 @@ let getAll = () => {
         client.connect();
         client.query(query, (err, res) => {
             if (err) reject(new Error(err + ""));
-            resolve(res.rows);
+            else resolve(res.rows);
             client.end();
         })
     })
@@ -120,9 +122,9 @@ let makeAdmin = (id) => {
         WHERE id= ${id};`
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ""));
-            resolve();
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ""));
+            else resolve();
             client.end();
         })
     })
@@ -138,9 +140,9 @@ let changeInfor = (account) => {
         WHERE id=${account.id}`
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ""));
-            resolve();
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ""));
+            else resolve();
             client.end();
         })
     })
@@ -149,15 +151,15 @@ exports.changeInfor = changeInfor;
 //#endregion
 //#region Change Password
 let changePassword = (account) => {
-    return new Promise ((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         let query = `UPDATE public.account
         SET password='${account.password}'
         WHERE id=${account.id}`
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ""));
-            resolve();
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ""));
+            else resolve();
             client.end();
         })
     })
@@ -175,7 +177,7 @@ let getById = (id) => {
             if (err) {
                 return reject(new Error(err + ''));
             }
-            resolve(res.rows[0]);
+            else resolve(res.rows[0]);
             client.end();
         });
     });

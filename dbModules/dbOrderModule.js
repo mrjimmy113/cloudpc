@@ -6,7 +6,7 @@ const pool = pgCon.getPg();
 //INSERT    
 let insert = (order) => {
     return new Promise((resolve, reject) => {
-        let query =  `INSERT INTO public."order"(
+        let query = `INSERT INTO public."order"(
             "accountId", "createdDate", "isFinished")
             VALUES (${order.accountId}, '${order.createdDate}', ${order.isFinished})
             RETURNING id
@@ -14,7 +14,7 @@ let insert = (order) => {
         let client = pgCon.getPgClient();
         client.connect();
         client.query(query, (err, res) => {
-            if(err) reject(new Error(err + ""));
+            if (err) reject(new Error(err + ""));
             resolve(res.rows[0].id);
             client.end();
         })
@@ -22,17 +22,17 @@ let insert = (order) => {
 }
 exports.insert = insert;
 //UPDATE
-exports.update = function(order) {
+exports.update = function (order) {
     var query = `UPDATE public."order"
         SET "accountId"=${order.accountId}, 
         "createdDate"='${order.createdDate}', 
         "isFinished"=${order.isFinished}
 	    WHERE id = ${order.id}`;
-        pool.query(query, (err, res) => {
-            console.log(err, res)
-            pool.end()
-          })
-    };
+    pool.query(query, (err, res) => {
+        console.log(err, res)
+        pool.end()
+    })
+};
 //DELETE
 let deleteOrder = (id) => {
     return new Promise((resolve, reject) => {
@@ -40,19 +40,19 @@ let deleteOrder = (id) => {
         WHERE id = ${id}`;
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ""));
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ""));
             resolve();
             client.end();
         })
     })
-} 
+}
 exports.delete = deleteOrder
 //#endregion
 //#region GET ORDER BY ACCOUNT ID
 let getByAccountID = (accountId) => {
     return new Promise((resolve, reject) => {
-        let query =`select id ,"createdDate" ,"isFinished",
+        let query = `select id ,"createdDate" ,"isFinished",
         array(
             select t2."name" from public."orderDetail" t1
             inner join public."gear" t2 on t1."gearId" = t2.id
@@ -72,11 +72,60 @@ let getByAccountID = (accountId) => {
         where "accountId" =${accountId}`;
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ""));
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ""));
             resolve(res.rows);
         })
     })
 }
 exports.getByAccID = getByAccountID;
+//#endregion
+//#region GET ORDER
+let getALL = () => {
+    return new Promise((resolve, reject) => {
+        let query = `select acc."username",cl."accountId",cl.id, cl."createdDate", cl."isFinished",
+        array(
+            select t2."name" from public."orderDetail" t1
+            inner join public."gear" t2 on t1."gearId" = t2.id
+			where t1."orderId" = cl.id
+        ) as "nameList",
+         array (
+            select t1."quantity" from public."orderDetail" t1
+            inner join public."gear" t2 on t1."gearId" = t2.id
+			 where t1."orderId" = cl.id
+        ) as "quantityList",
+        array(
+            select t2."price" from public."orderDetail" t1
+            inner join public."gear" t2 on t1."gearId" = t2.id
+			where t1."orderId" = cl.id
+        ) as "priceList"
+        
+        from public."order" cl 
+        inner join public."account" acc on cl."accountId" = acc.id`;
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ''))
+            else resolve(res.rows);
+            client.end();
+        })
+    })
+}
+exports.getAll = getALL;
+//#region
+//#region COMPLETE ORDER
+let complete = (id) => {
+    return new Promise((resolve, reject) => {
+        let query = `UPDATE public."order" SET "isFinished" = true WHERE id = ${id}`;
+        console.log(query);
+        let client = pgCon.getPgClient();
+        client.connect();
+        client.query(query, (err,res) => {
+            if(err) reject(new Error(err + ''))
+            else resolve();
+            client.end();
+        })
+    })
+}
+exports.complete = complete;
 //#endregion

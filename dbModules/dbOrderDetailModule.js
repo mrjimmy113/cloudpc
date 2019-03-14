@@ -17,7 +17,7 @@ let insert = (orderDetails, orderId) => {
         client.connect();
         client.query(query, (err, res) => {
             if (err) reject(new Error(err + ''));
-            resolve();
+            else resolve();
             client.end();
         })
     })
@@ -44,7 +44,7 @@ let deleteDetail = (orderId) => {
         client.connect();
         client.query(query, (err, res) => {
             if (err) reject(new Error(err + ""));
-            resolve();
+            else resolve();
             client.end();
         })
     })
