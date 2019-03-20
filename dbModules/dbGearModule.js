@@ -7,13 +7,13 @@ const pgCon = require('./pgconnection');
 let insert = (gear) => {
     return new Promise((resolve, reject) => {
         var query = `INSERT INTO public.gear(
-            name, description, "avatarURL", price, "typeId")
+            name, description, "avatarURL", price, "typeId", "isDeleted")
             VALUES ('${gear.name}', '${gear.description}', '${gear.avatarURL}',
-             ${gear.price}, ${gear.typeId})`;
+             ${gear.price}, ${gear.typeId}, false)`;
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query,(err,res) => {
-            if(err) {
+        client.query(query, (err, res) => {
+            if (err) {
                 return reject(new Error(err + ''));
             }
             else resolve();
@@ -35,8 +35,8 @@ let updateGear = (gear) => {
         WHERE id=${gear.id}`;
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ""));
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ""));
             else resolve();
             client.end();
         });
@@ -45,13 +45,14 @@ let updateGear = (gear) => {
 exports.update = updateGear;
 //DELETE
 let deleteGear = (id) => {
-    return new Promise((resolve,reject) => {
-        var query = `DELETE FROM public.gear
+    return new Promise((resolve, reject) => {
+        var query = `UPDATE public.gear
+        SET "isDeleted" = true
         WHERE id =${id}`;
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ""));
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ""));
             else resolve();
             client.end();
         });
@@ -60,12 +61,12 @@ let deleteGear = (id) => {
 exports.delete = deleteGear;
 //GET ALL
 let getAll = () => {
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
         let client = pgCon.getPgClient();
-        let query = `SELECT * FROM public.gear`;
+        let query = `SELECT * FROM public.gear WHERE "isDeleted" = false`;
         client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ""));
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ""));
             else resolve(res.rows);
             client.end();
         });
@@ -73,31 +74,37 @@ let getAll = () => {
 }
 exports.getAll = getAll;
 //GET PAGE
-let getPage = (search,page,perPage) => {
+let getPage = (search, page, perPage) => {
     return new Promise((resolve, reject) => {
         let query = `SELECT *
         FROM public."gear"
-        WHERE LOWER(name) LIKE LOWER('%${search}%')
+        WHERE "isDeleted" = false AND 
+        LOWER(name) LIKE LOWER('%${search}%')
         LIMIT ${perPage} OFFSET (${page} - 1) * ${perPage}
         `;
         let client = pgCon.getPgClient();
-        client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ''));
-            else resolve(res.rows);
-            client.end();
-        })
+        client.connect().then(() => {
+            client.query(query, (err, res) => {
+                if (err) reject(new Error(err + ''));
+                else resolve(res.rows);
+                client.end();
+            })
+        }).catch(() => reject(new Error('Connection Err')));
+        
+
     })
 }
 exports.getPage = getPage
 //GET MAX PAGE
 let getMaxPage = (search) => {
     return new Promise((resolve, reject) => {
-        let query = `SELECT COUNT(*) FROM public."gear" WHERE LOWER(name) LIKE LOWER('%${search}%')`;
+        let query = `SELECT COUNT(*) FROM public."gear" WHERE
+        "isDeleted" = false AND  
+        LOWER(name) LIKE LOWER('%${search}%')`;
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ''));
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ''));
             else resolve(res.rows[0].count);
             client.end();
         })
@@ -108,29 +115,32 @@ exports.getMaxPage = getMaxPage
 //GET MAX PAGE TYPE
 let getMaxPageType = (id) => {
     return new Promise((resolve, reject) => {
-        let query = `SELECT COUNT(*) FROM public."gear" WHERE "typeId" = ${id}`;
+        let query = `SELECT COUNT(*) FROM public."gear" WHERE 
+        "isDeleted" = false AND 
+        "typeId" = ${id}`;
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ''));
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ''));
             else resolve(res.rows[0].count);
             client.end();
         })
     })
 }
-exports.getMaxPageType  = getMaxPageType
+exports.getMaxPageType = getMaxPageType
 //GET PAGE TYPE
-let getPageType = (id,page,perPage) => {
+let getPageType = (id, page, perPage) => {
     return new Promise((resolve, reject) => {
         let query = `SELECT *
         FROM public."gear"
-        WHERE "typeId" = ${id}
+        WHERE "isDeleted" = false AND  
+        "typeId" = ${id}
         LIMIT ${perPage} OFFSET (${page} - 1) * ${perPage}
         `;
         let client = pgCon.getPgClient();
         client.connect();
-        client.query(query, (err,res) => {
-            if(err) reject(new Error(err + ''));
+        client.query(query, (err, res) => {
+            if (err) reject(new Error(err + ''));
             else resolve(res.rows);
             client.end();
         })

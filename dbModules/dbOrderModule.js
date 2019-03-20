@@ -117,7 +117,6 @@ exports.getAll = getALL;
 let complete = (id) => {
     return new Promise((resolve, reject) => {
         let query = `UPDATE public."order" SET "isFinished" = true WHERE id = ${id}`;
-        console.log(query);
         let client = pgCon.getPgClient();
         client.connect();
         client.query(query, (err,res) => {

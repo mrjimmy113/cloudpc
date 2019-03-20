@@ -6,10 +6,10 @@ const pool = pgCon.getPg();
 let insert = (account) => {
     return new Promise((resolve, reject) => {
         let query = `INSERT INTO public.account(
-            username, password, "firstName", "lastName", address, "phoneNumber", "isAdmin")
+            username, password, "firstName", "lastName", address, "phoneNumber", "isAdmin", "isDeleted")
             VALUES ('${account.username}', '${account.password}', '${account.firstName}', 
             '${account.lastName}', '${account.address}', '${account.phoneNumber}'
-            ,  ${account.isAdmin});`;
+            ,  ${account.isAdmin}, false);`;
         let client = pgCon.getPgClient();
         client.connect();
         client.query(query, (err, res) => {
@@ -43,8 +43,9 @@ exports.update = function (account) {
 //#region DELETE
 let deleteOpe = (id) => {
     return new Promise((resolve, reject) => {
-        let query = `DELETE FROM public.account
-    WHERE id = ${id};`;
+        let query = `UPDATE public.account
+        SET "isDeleted" = true
+        WHERE id = ${id};`;
         let client = pgCon.getPgClient();
         client.connect();
         client.query(query, (err, res) => {
@@ -59,7 +60,10 @@ exports.delete = deleteOpe;
 let login = (username, password) => {
     return new Promise((resolve, reject) => {
         let query = `SELECT * FROM public.account
-            WHERE username = '${username}' AND password = '${password}'`;
+            WHERE username = '${username}' 
+            AND password = '${password}'
+            AND "isDeleted" = false
+            `;
         var role = 'N';
         let client = pgCon.getPgClient();
         client.connect();
@@ -83,7 +87,9 @@ exports.login = login;
 let checkUsername = (username) => {
     return new Promise((resolve, reject) => {
         let query = `SELECT * FROM public.account
-            WHERE username = '${username}'`;
+            WHERE username = '${username}'
+            AND "isDeleted" = false
+            `;
         let client = pgCon.getPgClient();
         client.connect();
         client.query(query, (err, res) => {
@@ -102,7 +108,7 @@ exports.checkUsername = checkUsername;
 //#region Get ALL
 let getAll = () => {
     return new Promise((resolve, reject) => {
-        let query = `SELECT * FROM public.account`;
+        let query = `SELECT * FROM public.account WHERE "isDeleted" = false`;
         let client = pgCon.getPgClient();
         client.connect();
         client.query(query, (err, res) => {
@@ -170,7 +176,9 @@ exports.changePassword = changePassword;
 let getById = (id) => {
     return new Promise((resolve, reject) => {
         let query = `SELECT * FROM public.account
-            WHERE id = ${id}`;
+            WHERE id = ${id}
+            AND "isDeleted" = false
+            `;
         let client = pgCon.getPgClient();
         client.connect();
         client.query(query, (err, res) => {
