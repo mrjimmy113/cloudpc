@@ -66,7 +66,10 @@ router.get("/getMaxPageType/:id",(req,res) => {
     .then(result => res.json(Math.ceil(result/pageItem)))
     .catch((err) => res.json(500))
 })
-
+router.get("/getRandom/:num", (req,res) => {
+    dbGear.getRandom(req.params.num).then(result => res.json(result))
+    .catch(()=> res.json(500))
+})
 
 
 

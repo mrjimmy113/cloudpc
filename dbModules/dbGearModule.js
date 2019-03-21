@@ -147,5 +147,27 @@ let getPageType = (id, page, perPage) => {
     })
 }
 exports.getPageType = getPageType
+// GET RANDOM
+let getRandom = (num) => {
+    return new Promise((resolve, reject) => {
+        let query = `select * from public."gear" 
+        where "isDeleted" = false
+        order by random() limit ${num}
+        `;
+        let client = pgCon.getPgClient();
+        client.connect().then(() => {
+            client.query(query, (err, res) => {
+                if (err) reject(new Error(err + ''));
+                else resolve(res.rows);
+                client.end();
+            })
+        }).catch(() => reject(new Error('Connection Err')));
+        
+
+    })
+}
+exports.getRandom = getRandom
 //#endregion
+
+
 
